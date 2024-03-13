@@ -1,0 +1,35 @@
+services:
+
+  onedev:
+    image: 1dev/server:latest
+    container_name: onedev
+    restart: unless-stopped
+    ports:
+      - "6610:6610"
+      - "6611:6611"
+    volumes: 
+      - ./onedev/data:/opt/onedev
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - hibernate_dialect=io.onedev.server.persistence.PostgreSQLDialect
+      - hibernate_connection_driver_class=org.postgresql.Driver
+      - hibernate_connection_url=jdbc:postgresql://onedev-db:5432/onedev
+      - hibernate_connection_username=User
+      - hibernate_connection_password=p4ssw0rd
+      - initial_user=User
+      - initial_password=p4ssw0rd
+      - initial_email=admin@example.com 
+      - initial_server_url=http://localhost:6610 # IP ó dominio
+    depends_on: 
+      - onedev-db
+
+  onedev-db:
+    image: postgres:14
+    container_name: onedev-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=User
+      - POSTGRES_PASSWORD=p4ssw0rd
+      - POSTGRES_DB=onedev
+    volumes:
+      - ./onedev/db:/var/lib/postgresql/data
